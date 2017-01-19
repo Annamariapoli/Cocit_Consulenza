@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
+import bean.AutoreAutoreArticolo;
 import bean.Creator;
 
 public class Dao {
@@ -30,27 +31,56 @@ public class Dao {
 		}
 	}
 
-	public int contoArticoliComune(Creator a1, Creator a2) throws SQLException{
+	
+	public List<AutoreAutoreArticolo> getCoppie() throws SQLException{  //ok
 		Connection conn = DBConnect.getConnection();
-		int articoli=0;
-		String query="select  count(a1.eprintid) as num  "
-				+ "from authorship a1, authorship a2   "
-				+ "where a1.eprintid=a2.eprintid   "
-				+ "and a1.id_creator<>a2.id_creator   "
-				+ "and  a1.id_creator=? and a2.id_creator=?;";
+		String query="     select a1.id_creator as idCreator1, a2.id_creator as idCreator2 , count(distinct a1.eprintid)  as num "
+				+ "        from authorship a1, authorship a2   "
+				+ "        where a1.eprintid= a2.eprintid "
+				+ "        and a1.id_creator<>a2.id_creator  "
+				+ "        group by a1.id_creator, a2.id_creator";
+		List<AutoreAutoreArticolo> aaa= new LinkedList<>();
 		try{
 			PreparedStatement st = conn.prepareStatement(query);
-			st.setInt(1, a1.getId_creator());
-			st.setInt(2, a2.getId_creator());
 			ResultSet res = st.executeQuery();
-			if(res.next()){
-				articoli = res.getInt("num");
+			while(res.next()){
+				AutoreAutoreArticolo c = new AutoreAutoreArticolo(res.getInt("idCreator1"), res.getInt("idCreator2"), res.getInt("num"));
+				aaa.add(c);
 			}
 			conn.close();
-			return articoli;
+			System.out.println(aaa);
+			return aaa;
 		}catch(SQLException e ){
 			e.printStackTrace();
-			return -1;
+			return null;
 		}
+	}
+	
+	public Creator getCreatorById(int idCreator) throws SQLException{   //ok
+		Connection conn = DBConnect.getConnection();
+		String query="select c.id_creator, c.family_name, c.given_name  "
+				+ "from creator c   where c.id_creator=?";
+		Creator c = null;
+		try{
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setInt(1,  idCreator);
+			ResultSet res = st.executeQuery();
+			if(res.next()){
+				 c = new Creator (res.getInt("id_creator"), res.getString("family_name"), res.getString("given_name"));
+			}
+			conn.close();
+			System.out.println(c);
+			return c;
+		}catch(SQLException e ){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	
+	public static void main(String [] args) throws SQLException{
+		Dao dao = new Dao();
+		//dao.getCreatorById(85);
+		dao.getCoppie();
 	}
 }

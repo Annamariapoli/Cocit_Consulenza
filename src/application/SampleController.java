@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import bean.AutoreAutoreArticolo;
 import bean.Creator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -53,14 +54,18 @@ public class SampleController {
     	}
     	
     	model.buildGraph();
+    	int pesoArcoMax = model.getArcoPiuPesante();
+    	txtResult.appendText(" il peso dell'arco piu pesnate è  : "+ pesoArcoMax);
     
     	List<Creator> cammino = model.getCamminoMinimo(c1, c2);
     	if(cammino.size()==0){
-    		txtResult.appendText("non esiste");
+    		txtResult.appendText("Il cammino non esiste \n ");
     	}
     	else {
-    		txtResult.appendText(cammino.toString());
-    	}
+    		txtResult.appendText("Il cammino tra "+ c1 + " e " + c2 + "   è  : ");
+    		for(Creator cre : cammino){
+    		   txtResult.appendText(cre+ " \n");
+    	}}
 
     }
 

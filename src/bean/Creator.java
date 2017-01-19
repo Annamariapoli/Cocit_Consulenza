@@ -29,6 +29,11 @@ public class Creator {
 	public void setGiven_name(String given_name) {
 		this.given_name = given_name;
 	}
+	
+	
+	
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -49,6 +54,7 @@ public class Creator {
 			return false;
 		return true;
 	}
+	
 	
 	public String toString(){
 		String ris ;

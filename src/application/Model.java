@@ -1,50 +1,79 @@
 package application;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.Graphs;
-import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
 
+import bean.AutoreAutoreArticolo;
 import bean.Creator;
 import db.Dao;
 
 public class Model {
 	
 	private Dao dao = new Dao();
-	private UndirectedGraph<Creator, DefaultEdge> grafo=null;
+	private SimpleWeightedGraph<Creator, DefaultWeightedEdge> grafo=null;
 	
 	public List<Creator> getAutori() throws SQLException{
 		List<Creator> autori = new LinkedList<Creator>();
 		autori= dao.getAllAutori();
+		System.out.println(autori);
 		return autori;
 	}
 
-	public int artCom(Creator a1, Creator a2) throws SQLException{
-		int num = dao.contoArticoliComune(a1, a2);
-		return num;
+	public List<AutoreAutoreArticolo> getCoppie() throws SQLException{
+		List<AutoreAutoreArticolo> listaCoppie = dao.getCoppie();
+		return listaCoppie;
 	}
 	
-	public void buildGraph() throws SQLException{                              //NON PARTE
-		grafo= new SimpleGraph<Creator, DefaultEdge>(DefaultEdge.class);
-		List<Creator> nodi = getAutori();
-		Graphs.addAllVertices(grafo, nodi);
-		for(Creator a1 : nodi){
-			for(Creator a2 : nodi){
-				if(!a1.equals(a2)){
-					int num = artCom(a1, a2);
-					if(num>0){
-					grafo.addEdge(a1, a2);
-				    }
-				}			
+	public Creator getAutoreById(int idCreator) throws SQLException{
+		Creator c = dao.getCreatorById(idCreator);
+		return c;
+	}
+	
+	public void buildGraph() throws SQLException{        //ok               
+		grafo= new SimpleWeightedGraph<Creator, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		List<Creator> nodiAutori = getAutori();
+		Graphs.addAllVertices(grafo,  nodiAutori);
+		
+		List<AutoreAutoreArticolo> aaa = getCoppie();
+			for(Creator n1 : grafo.vertexSet()){
+			for(Creator n2 : grafo.vertexSet()){
+				if(!n1.equals(n2)){
+				int numeroArticoli = calcoloNumeroArticoliComuni(n1, n2, aaa );
+				if(numeroArticoli>0){
+					Graphs.addEdge(grafo,  n1,  n2, numeroArticoli);
+			        }
+				}
+     	  }
+		  }
+		System.out.println(grafo.toString());
+	}
+	
+	public int calcoloNumeroArticoliComuni(Creator n1, Creator n2, List<AutoreAutoreArticolo> coppie) {  // ritorna sempre 0
+		for(AutoreAutoreArticolo a_a_a : coppie){
+			if(n1.getId_creator()==a_a_a.getIcCreator1()  && n2.getId_creator()==a_a_a.getIdCreator2()){
+				return a_a_a.getNumeroArticoli();
 			}
 		}
-		System.out.println(grafo.toString());
+		return 0;
+	}
+	
+	public int getArcoPiuPesante(){     //ok
+		int max =0;
+		for(DefaultWeightedEdge arco : grafo.edgeSet()){
+			if(grafo.getEdgeWeight(arco)> max ){
+				max = (int) grafo.getEdgeWeight(arco);
+			}
+		}
+		return max;
 	}
 
 	public List<Creator > getCamminoMinimo(Creator a1 , Creator a2){
@@ -57,21 +86,12 @@ public class Model {
 		if(a1.equals(a2)){
 			return null;
 		}
-		DijkstraShortestPath<Creator, DefaultEdge> cammino = new DijkstraShortestPath<Creator, DefaultEdge>(grafo,a1, a2);
-		GraphPath<Creator, DefaultEdge> path= cammino.getPath();
+		DijkstraShortestPath<Creator, DefaultWeightedEdge> cammino = new DijkstraShortestPath<Creator, DefaultWeightedEdge>(grafo,a1, a2);
+		GraphPath<Creator, DefaultWeightedEdge> path= cammino.getPath();
 		if(path==null){
 			return null;
 		}
 		autori= Graphs.getPathVertexList(path);
 		return autori;
 	}
-
-public  static void main(String [] args) throws SQLException{
-	Model m = new Model();
-	m.buildGraph();
-	
-}
-
-
-
 }
