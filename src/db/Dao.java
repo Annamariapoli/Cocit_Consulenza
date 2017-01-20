@@ -78,6 +78,31 @@ public class Dao {
 	}
 	
 	
+	public List<Creator> getViciniGrafo(Creator cc ) throws SQLException{
+		Connection conn = DBConnect.getConnection();
+		String query="select distinct  c2.id_creator, c2.family_name, c2.given_name  "
+				+ "from creator c1, creator c2, authorship a1, authorship a2  "
+				+ "where c1.id_creator=a1.id_creator and a2.id_creator=c2.id_creator  "
+				+ "and a1.eprintid=a2.eprintid and a1.id_creator<>a2.id_creator  "
+				+ "and c1.id_creator=?";
+		try{
+			PreparedStatement st = conn.prepareStatement(query);
+			List<Creator> vicini= new LinkedList<Creator>();
+			st.setInt(1, cc.getId_creator());
+			ResultSet res = st.executeQuery();
+			while(res.next()){
+				Creator c = new Creator(res.getInt("id_creator"), res.getString("family_name"), res.getString("given_name"));
+				vicini.add(c);
+			}
+			conn.close();
+			return vicini;
+		}catch(SQLException e ){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	
 	public static void main(String [] args) throws SQLException{
 		Dao dao = new Dao();
 		//dao.getCreatorById(85);

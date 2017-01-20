@@ -94,4 +94,44 @@ public class Model {
 		autori= Graphs.getPathVertexList(path);
 		return autori;
 	}
+	
+	
+	
+	public List<Creator> getVicini (Creator c){
+		if(c!=null){
+			List<Creator> vicini = Graphs.neighborListOf(grafo,  c);
+			return vicini;
+		}
+		return null;
+	}
+	
+	
+	public List<Creator> getViciniQuery(Creator c ) throws SQLException{
+		List<Creator> viciniQuery = dao.getViciniGrafo(c);
+		return viciniQuery;
+	}
+	
+	
+	public int pesoArcoTraDue(Creator c1, Creator c2 ){
+			if(grafo.containsEdge(c1, c2)){
+				DefaultWeightedEdge arco = grafo.getEdge(c1, c2);
+				int peso = (int) grafo.getEdgeWeight(arco);
+				return peso;
+				}
+			return -1;
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

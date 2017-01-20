@@ -54,18 +54,36 @@ public class SampleController {
     	}
     	
     	model.buildGraph();
-    	int pesoArcoMax = model.getArcoPiuPesante();
-    	txtResult.appendText(" il peso dell'arco piu pesnate è  : "+ pesoArcoMax);
-    
-    	List<Creator> cammino = model.getCamminoMinimo(c1, c2);
-    	if(cammino.size()==0){
-    		txtResult.appendText("Il cammino non esiste \n ");
-    	}
-    	else {
-    		txtResult.appendText("Il cammino tra "+ c1 + " e " + c2 + "   è  : ");
-    		for(Creator cre : cammino){
-    		   txtResult.appendText(cre+ " \n");
-    	}}
+//    	
+//  
+//    	int peso = model.pesoArcoTraDue(c1, c2);
+//    	txtResult.appendText("Il peso del loro arco è  : "+ peso+" \n");
+////  
+    	
+    	txtResult.appendText("VICINI grafo !\n");
+    	
+    	List<Creator> vicini = model.getVicini(c1);
+    	
+    	txtResult.appendText("I vicini di c1 ( "+c1+" )  sono :  \n");
+    	txtResult.appendText(vicini.toString());
+    	
+    	txtResult.appendText("VICINI query: \n");
+    	List<Creator > viciniQuery = model.getViciniQuery(c1);
+    	txtResult.appendText(viciniQuery.toString());
+//    	
+//    	
+//    	int pesoArcoMax = model.getArcoPiuPesante();
+//    	txtResult.appendText(" il peso dell'arco piu pesnate è  : "+ pesoArcoMax);
+//    
+//    	List<Creator> cammino = model.getCamminoMinimo(c1, c2);
+//    	if(cammino.size()==0){
+//    		txtResult.appendText("Il cammino non esiste \n ");
+//    	}
+//    	else {
+//    		txtResult.appendText("Il cammino tra "+ c1 + " e " + c2 + "   è  : ");
+//    		for(Creator cre : cammino){
+//    		   txtResult.appendText(cre+ " \n");
+//    	}}
 
     }
 
